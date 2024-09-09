@@ -1,0 +1,25 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/resources/fonts/Montserrat-Bold.ttf",
+      "sha1": "98c66622226025f539568865af96df5175e2979c"
+    },
+    {
+      "path": "src/resources/fonts/Montserrat-BoldItalic.ttf",
+      "sha1": "516e381cb5824e976db5cfb69d630a24f27a9ba6"
+    },
+    {
+      "path": "src/resources/fonts/Montserrat-Italic.ttf",
+      "sha1": "9b14c390a8b40d941f62a971cb6d7d152e59154a"
+    },
+    {
+      "path": "src/resources/fonts/Montserrat-Light.ttf",
+      "sha1": "9dfbddad5025d8d224b4939e54c1a4ac8ac6015b"
+    },
+    {
+      "path": "src/resources/fonts/Montserrat-Regular.ttf",
+      "sha1": "bb895d19b8a1fbe1c57fc89cac5da82fdc8fdef4"
+    }
+  ]
+}
