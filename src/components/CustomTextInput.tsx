@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { FC } from 'react'
-import { Image, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import { COLORS, FONTS } from '../utils/Strings'
 import { sizeFont, sizeWidth } from '../utils/Size'
 
@@ -30,6 +30,9 @@ interface props {
     multiline?: boolean,
     dualTextInput?: any,
     onBlur?: any,
+    rightIconStyle?: any,
+    rightIconPress?: any,
+    textViewContainerStyle?: any,
 }
 
 const CustomTextInput: FC<props> = ({
@@ -53,10 +56,13 @@ const CustomTextInput: FC<props> = ({
     multiline,
     dualTextInput,
     onBlur,
+    rightIconStyle,
+    rightIconPress,
+    textViewContainerStyle
 }) => {
     return (
         <View style={styles.container}>
-            <View style={styles.textView}>
+            <View style={[styles.textView, textViewContainerStyle]}>
                 {leftIconSource ? (<Image source={leftIconSource} style={styles.icon} />) : null}
                 {
                     dualTextInput ? (
@@ -82,7 +88,9 @@ const CustomTextInput: FC<props> = ({
                 />
                 {
                     rightIconSource ? (
-                        <Image source={rightIconSource} style={styles.icon} />
+                        <TouchableOpacity style={{ alignSelf: 'center' }} activeOpacity={0.7} onPress={rightIconPress}>
+                            <Image source={rightIconSource} style={[styles.icon, rightIconStyle]} />
+                        </TouchableOpacity>
                     ) : null
                 }
                 {
@@ -129,16 +137,16 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         paddingStart: 10,
         justifyContent: 'center',
-        flexDirection: 'column',
         borderRadius: 30,
         borderWidth: 2,
         borderColor: '#213789',
     },
     icon: {
-        height: 27,
-        width: 27,
+        height: sizeWidth(7),
+        width: sizeWidth(7),
         alignSelf: 'center',
-        tintColor: '#213789'
+        tintColor: COLORS.Deep_Purple,
+        resizeMode: 'center',
     },
     textInput: {
         marginHorizontal: 10,

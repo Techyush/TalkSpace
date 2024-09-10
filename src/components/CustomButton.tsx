@@ -10,6 +10,7 @@ interface props {
     onPress?: any,
     ref?: any
     activeOpacity?: any,
+    disabled?: boolean,
 }
 
 const CustomButton: FC<props> = ({
@@ -19,6 +20,7 @@ const CustomButton: FC<props> = ({
     activeOpacity,
     onPress,
     ref,
+    disabled,
 }) => {
     return (
         <View style={styles.container}>
@@ -27,6 +29,7 @@ const CustomButton: FC<props> = ({
                 onPress={onPress}
                 ref={ref}
                 activeOpacity={activeOpacity}
+                disabled={disabled}
             >
                 <Text style={[styles.buttonText, buttonTextStyle]}>{buttonText}</Text>
             </TouchableOpacity>

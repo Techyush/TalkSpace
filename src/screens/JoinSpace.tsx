@@ -1,24 +1,65 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { COLORS, FONTS, STRINGS } from '../utils/Strings'
+import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import React, { FC, useEffect, useState } from 'react'
+import { COLORS, FONTS, SCREENS, STRINGS } from '../utils/Strings'
 import { sizeFont, sizeWidth } from '../utils/Size'
 import CustomTextInput from '../components/CustomTextInput'
 import CustomButton from '../components/CustomButton'
+import FirebaseDB from '../firebase/FirebaseDB'
+import { storage } from '../../App'
 
-const JoinSpace = () => {
+interface Props {
+  navigation: any,
+}
+
+const JoinSpace: FC<Props> = ({ navigation }) => {
+
+  const [code, setCode] = useState<any>()
+  const [isJoinButtonDisabled, setJoinButtonDisabled] = useState<boolean>(true)
+
+  useEffect(() => {
+    if (code) {
+      setJoinButtonDisabled(false)
+    } else {
+      setJoinButtonDisabled(true)
+    }
+  }, [code])
+
+  const joinButtonPress = async () => {
+    const result = await FirebaseDB.joinOrCreateSpace(code)
+    if (result === "joined") {
+      storage.set(STRINGS.MMKV.Code, code)
+      ToastAndroid.show(STRINGS.SpaceJoined, ToastAndroid.SHORT)
+      navigation.navigate(SCREENS.TalkSpace)
+    } else if (result === "created") {
+      storage.set(STRINGS.MMKV.Code, code)
+      ToastAndroid.show(STRINGS.SpaceCreated, ToastAndroid.SHORT)
+      navigation.navigate(SCREENS.TalkSpace)
+    } else if (result === "full") {
+      ToastAndroid.show(STRINGS.SpaceFull, ToastAndroid.SHORT)
+    } else {
+      ToastAndroid.show(STRINGS.Failed, ToastAndroid.SHORT)
+    }
+  }
+
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.titleText}>{STRINGS.CreateOrJoin}</Text>
       <View style={styles.joinSpaceContainer}>
         <View style={styles.joinSpaceView}>
-          <Text style={styles.joinSpaceViewText}>{STRINGS.EnterCode}</Text>
           <CustomTextInput
             placeholder={'Enter Code'}
-            maxLength={7}
+            maxLength={10}
+            onChangeText={(value: any) => setCode(value)}
+            value={code}
+            onSubmitEditing={() => joinButtonPress()}
           />
           <CustomButton
             buttonText={'Join'}
             activeOpacity={0.7}
+            onPress={() => joinButtonPress()}
+            disabled={isJoinButtonDisabled}
+            buttonStyle={isJoinButtonDisabled ? { backgroundColor: COLORS.Gray } : { backgroundColor: COLORS.Deep_Purple }}
+
           />
         </View>
       </View>
@@ -38,7 +79,7 @@ const styles = StyleSheet.create({
     color: COLORS.White,
     fontSize: sizeFont(6),
     textAlign: 'center',
-    marginTop: sizeWidth(4),
+    marginTop: sizeWidth(10),
     justifyContent: 'center',
     alignItems: 'center',
   },
