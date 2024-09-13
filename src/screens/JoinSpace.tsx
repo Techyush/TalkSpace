@@ -1,44 +1,63 @@
-import { StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
-import React, { FC, useEffect, useState } from 'react'
-import { COLORS, FONTS, SCREENS, STRINGS } from '../utils/Strings'
-import { sizeFont, sizeWidth } from '../utils/Size'
-import CustomTextInput from '../components/CustomTextInput'
-import CustomButton from '../components/CustomButton'
-import FirebaseDB from '../firebase/FirebaseDB'
-import { storage } from '../../App'
+import React, { FC, useEffect, useState } from 'react';
+import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { storage } from '../../App';
+import CustomButton from '../components/CustomButton';
+import CustomTextInput from '../components/CustomTextInput';
+import Loading from '../components/Loading'; // Import Loading modal
+import FirebaseDB from '../firebase/FirebaseDB';
+import { sizeFont, sizeWidth } from '../utils/Size';
+import { COLORS, FONTS, SCREENS, STRINGS } from '../utils/Strings';
+import SetLimitModal from '../components/SetLimitModal';
 
 interface Props {
-  navigation: any,
+  navigation: any;
 }
 
 const JoinSpace: FC<Props> = ({ navigation }) => {
-
-  const [code, setCode] = useState<any>()
+  const [code, setCode] = useState<string>('')
   const [isJoinButtonDisabled, setJoinButtonDisabled] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isSetLimitVisible, setIsSetLimitVisible] = useState<boolean>(false)
+  const [limit, setLimit] = useState<number>(2)
 
   useEffect(() => {
-    if (code) {
-      setJoinButtonDisabled(false)
-    } else {
-      setJoinButtonDisabled(true)
-    }
+    setJoinButtonDisabled(!code)
   }, [code])
 
+  // useEffect(() => {
+  //   if (storage.getString(STRINGS.MMKV.Code)) {
+  //     navigation.navigate(SCREENS.TalkSpace)
+  //   }
+  // }, [])
+
+  const handleSetLimitButtonPress = (limit: number) => {
+    FirebaseDB.setJoinLimit(limit)
+    ToastAndroid.show(STRINGS.SpaceCreated, ToastAndroid.SHORT)
+    setCode('')
+    navigation.navigate(SCREENS.TalkSpace)
+  }
+
   const joinButtonPress = async () => {
-    const result = await FirebaseDB.joinOrCreateSpace(code)
-    if (result === "joined") {
+    setIsLoading(true)
+
+    const result = await FirebaseDB.joinOrCreateSpace(code);
+    // storage.set('lastActive', '')
+
+    if (result === 'joined') {
       storage.set(STRINGS.MMKV.Code, code)
+      setCode('')
       ToastAndroid.show(STRINGS.SpaceJoined, ToastAndroid.SHORT)
       navigation.navigate(SCREENS.TalkSpace)
-    } else if (result === "created") {
+    } else if (result === 'created') {
       storage.set(STRINGS.MMKV.Code, code)
-      ToastAndroid.show(STRINGS.SpaceCreated, ToastAndroid.SHORT)
-      navigation.navigate(SCREENS.TalkSpace)
-    } else if (result === "full") {
+      setIsSetLimitVisible(true)
+    } else if (result === 'full') {
+      setCode('')
       ToastAndroid.show(STRINGS.SpaceFull, ToastAndroid.SHORT)
     } else {
       ToastAndroid.show(STRINGS.Failed, ToastAndroid.SHORT)
     }
+    setIsLoading(false)
   }
 
   return (
@@ -49,25 +68,26 @@ const JoinSpace: FC<Props> = ({ navigation }) => {
           <CustomTextInput
             placeholder={'Enter Code'}
             maxLength={10}
-            onChangeText={(value: any) => setCode(value)}
+            onChangeText={(value: string) => setCode(value)}
             value={code}
-            onSubmitEditing={() => joinButtonPress()}
+            onSubmitEditing={joinButtonPress}
           />
           <CustomButton
             buttonText={'Join'}
             activeOpacity={0.7}
-            onPress={() => joinButtonPress()}
+            onPress={joinButtonPress}
             disabled={isJoinButtonDisabled}
             buttonStyle={isJoinButtonDisabled ? { backgroundColor: COLORS.Gray } : { backgroundColor: COLORS.Deep_Purple }}
-
           />
         </View>
       </View>
+      {isSetLimitVisible && <SetLimitModal visible={isSetLimitVisible} handleSetLimitButtonPress={handleSetLimitButtonPress} />}
+      {isLoading && <Loading visible={isLoading} />}
     </View>
-  )
-}
+  );
+};
 
-export default JoinSpace
+export default JoinSpace;
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -101,4 +121,4 @@ const styles = StyleSheet.create({
     fontSize: sizeFont(5.5),
     textAlign: 'center',
   },
-})
+});

@@ -1,28 +1,41 @@
-import { View, Text, AppState } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import AppRouter from './src/routes/AppRouter'
+import React from 'react'
 import { MMKV } from 'react-native-mmkv'
-import { STRINGS } from './src/utils/Strings'
+import AppRouter from './src/routes/AppRouter'
 
 export const storage = new MMKV()
 
 const App = () => {
 
-  const appState = useRef(AppState.currentState)
-  const [appStateVisible, setAppStateVisible] = useState(appState.current)
+  // useEffect(() => {
+  //   const checkIfAppKilled = () => {
+  //     const lastActive = storage.getString('lastActive') // Get the lastActive when chat screen was opened
+  //     let restartCount = storage.getNumber('restartCount') ?? 0 // Initialize with 0 on first run
+  //     console.log('restartCount App log', restartCount)
+  //     let code = storage.getString(STRINGS.MMKV.Code)
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      appState.current = nextAppState
-      setAppStateVisible(appState.current)
-      console.log('AppState', appState.current)
-      storage.set(STRINGS.MMKV.AppState, appState.current)
-    })
+  //     if (lastActive) {
+  //       const timeDifference = (new Date().getTime() - new Date(lastActive).getTime()) / 1000
 
-    return () => {
-      subscription.remove()
-    }
-  }, [])
+  //       if (timeDifference > 1) { 
+  //         if (restartCount === 1) {
+  //           console.log('First app restart detected')
+  //           storage.set('restartCount', 2)
+  //           console.log('First restart, setting restartCount to 1')
+  //           FirebaseDB.updateLimit(code, false)
+  //           storage.delete(STRINGS.MMKV.Code)
+  //         } else {
+  //           console.log('App restarted again, incrementing restart count')
+  //           storage.set('restartCount', restartCount + 1)
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   checkIfAppKilled()
+
+  // }, [])
+
+
 
   return (
     <AppRouter />

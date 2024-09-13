@@ -1,7 +1,11 @@
-import { getDatabase } from "@react-native-firebase/database"
+import { getDatabase } from "@react-native-firebase/database";
+import { storage } from "../../App";
+import { STRINGS } from "../utils/Strings";
 export default class FirebaseDB {
 
     static async joinOrCreateSpace(code: any): Promise<"joined" | "created" | "failed" | "full"> {
+
+        const joinLimit = await FirebaseDB.getJoinLimit(code)
 
         const currentDate = new Date();
         const formattedDate = currentDate.getDate() + "/"
@@ -18,13 +22,13 @@ export default class FirebaseDB {
                 await getDatabase().ref(`/spaces/${code}/currentlyJoined`).once('value').then(snapshot => {
                     currentlyJoined = snapshot.val()
                 })
-                if (currentlyJoined < 2) {
+                if (currentlyJoined < joinLimit) {
                     await getDatabase().ref(`/spaces/${code}`).update({
                         lastSpaceOpenedOn: formattedDate,
                         currentlyJoined: currentlyJoined + 1,
                     })
                     return "joined"
-                } else if (currentlyJoined >= 2) {
+                } else if (currentlyJoined >= joinLimit) {
                     return "full"
                 }
             } else {
@@ -67,7 +71,7 @@ export default class FirebaseDB {
 
         try {
             await getDatabase().ref(`/spaces/${code}`).update({
-                message: message,
+                message: message.trim(),
                 lastMessageSentOn: formattedDate,
             })
             return true
@@ -77,13 +81,30 @@ export default class FirebaseDB {
         }
     }
 
-    static async updateLimit(code: any) {
+    static async updateLimit(code: any, add: boolean) {
         let currentlyJoined: any
         await getDatabase().ref(`/spaces/${code}/currentlyJoined`).once('value').then(snapshot => {
             currentlyJoined = snapshot.val()
         })
         await getDatabase().ref(`/spaces/${code}`).update({
-            currentlyJoined: currentlyJoined - 1,
+            currentlyJoined: add ? currentlyJoined + 1 : currentlyJoined - 1,
         })
+    }
+
+    static async setJoinLimit(limit: number) {
+        let joinLimit: any
+        const code = storage.getString(STRINGS.MMKV.Code)
+        await getDatabase().ref(`/spaces/${code}/joinLimit`).once('value').then(snapshot => {
+            joinLimit = snapshot.val()
+        })
+        await getDatabase().ref(`/spaces/${code}`).update({
+            joinLimit: Number(limit),
+        })
+    }
+
+    static async getJoinLimit(code: any) {
+        const snapshot = await getDatabase().ref(`/spaces/${code}/joinLimit`).once('value')
+        console.log(snapshot.val())
+        return snapshot.val()
     }
 }
