@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Modal, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { sizeWidth } from '../utils/Size';
 import CustomButton from './CustomButton';
 import CustomTextInput from './CustomTextInput';
+import { COLORS, IMAGES } from '../utils/Strings';
+import ReactNativeModal from 'react-native-modal';
 
 interface SetLimitProps {
     visible: boolean,
     handleSetLimitButtonPress: (limit: number) => void,
+    onClose: () => void,
 }
 
-const SetLimitModal: React.FC<SetLimitProps> = ({ visible, handleSetLimitButtonPress }) => {
+const SetLimitModal: React.FC<SetLimitProps> = ({ visible, handleSetLimitButtonPress, onClose }) => {
 
     const [limit, setLimit] = useState<number>(2)
 
@@ -18,22 +21,28 @@ const SetLimitModal: React.FC<SetLimitProps> = ({ visible, handleSetLimitButtonP
     }
 
     return (
-        <Modal
-            transparent={true}
-            animationType="fade"
-            visible={visible}
+        <ReactNativeModal
+            animationIn="fadeIn"
+            animationOut="fadeOut"
+            animationInTiming={500}
+            animationOutTiming={500}
+            isVisible={visible}
+            style={{ margin: 0 }}
         >
             <View style={styles.modalBackground}>
                 <View style={styles.container}>
-                    {/* <Text>Set Limit</Text> */}
+                    <TouchableOpacity style={styles.closeIconButton} activeOpacity={0.7} onPress={onClose}>
+                        <Image source={IMAGES.Close} style={styles.closeIcon} />
+                    </TouchableOpacity>
                     <CustomTextInput
                         placeholder={'Set Limit'}
-                        maxLength={1}
+                        maxLength={2}
                         onChangeText={(value: number) => setLimit(value)}
                         value={limit}
                         style={{ width: sizeWidth(45) }}
                         onSubmitEditing={handlePress}
                         keyboardType='numeric'
+                        placeholderTextColor={COLORS.Gray}
                     />
                     <CustomButton
                         buttonText={'Set'}
@@ -41,12 +50,10 @@ const SetLimitModal: React.FC<SetLimitProps> = ({ visible, handleSetLimitButtonP
                         buttonStyle={{ width: sizeWidth(50) }}
                         buttonTextStyle={{ padding: 0 }}
                         onPress={handlePress}
-                    // disabled={isJoinButtonDisabled}
-                    // buttonStyle={isJoinButtonDisabled ? { backgroundColor: COLORS.Gray } : { backgroundColor: COLORS.Deep_Purple }}
                     />
                 </View>
             </View>
-        </Modal>
+        </ReactNativeModal>
     );
 };
 
@@ -64,6 +71,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         // flexDirection: 'row',
     },
+    closeIconButton: {
+        width: sizeWidth(10),
+        height: sizeWidth(10),
+        position: 'absolute',
+        justifyContent: 'center',
+        alignItems: 'center',
+        right: 5,
+        top: 5,
+        // backgroundColor: COLORS.Deep_Purple,
+    },
+    closeIcon: {
+        width: sizeWidth(4),
+        height: sizeWidth(4),
+        resizeMode: 'contain',
+        tintColor: COLORS.Deep_Purple,
+    }
 });
 
 export default SetLimitModal;

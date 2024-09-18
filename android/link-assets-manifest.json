@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "src/resources/fonts/Andrea-Bellarosa-Regular.ttf",
+      "sha1": "ff1821b218571c1ca6fdc537f905cc3e6fe2951d"
+    },
+    {
       "path": "src/resources/fonts/Montserrat-Bold.ttf",
       "sha1": "98c66622226025f539568865af96df5175e2979c"
     },

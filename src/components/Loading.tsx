@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Modal, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { COLORS } from '../utils/Strings';
+import ReactNativeModal from 'react-native-modal';
 
 interface LoadingProps {
     visible: boolean;
@@ -8,17 +9,18 @@ interface LoadingProps {
 
 const Loading: React.FC<LoadingProps> = ({ visible }) => {
     return (
-        <Modal
-            transparent={true}
-            animationType="fade"
-            visible={visible}
+        <ReactNativeModal
+            animationIn="fadeIn"
+            animationOut="fadeOut"
+            isVisible={visible}
+            style={{ margin: 0 }}
         >
             <View style={styles.modalBackground}>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={COLORS.Deep_Purple} />
                 </View>
             </View>
-        </Modal>
+        </ReactNativeModal>
     );
 };
 

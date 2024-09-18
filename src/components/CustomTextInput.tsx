@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         fontSize: sizeFont(5),
         fontFamily: FONTS.Mont_Bold,
+        color: COLORS.Black,
     },
     error: {
         color: 'red',

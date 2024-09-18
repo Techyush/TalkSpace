@@ -36,9 +36,10 @@ export default class FirebaseDB {
                     code: code,
                     joinLimit: 2,
                     createdOn: formattedDate,
-                    message: '',
                     lastMessageSentOn: '',
                     currentlyJoined: 1,
+                    lastMessageSentBy: '',
+                    clearChatOnLeavingSpace: false,
                 })
                 return "created"
             }
@@ -60,20 +61,41 @@ export default class FirebaseDB {
         }
     }
 
-    static async sendMessage(code: any, message: any): Promise<boolean> {
-        const currentDate = new Date()
+    static async sendMessagesToChat(code: any, message: any, nickname: any): Promise<boolean> {
+        const currentDate = new Date();
         const formattedDate = currentDate.getDate() + "/"
             + (currentDate.getMonth() + 1).toString().padStart(2, '0') + "/"
             + currentDate.getFullYear() + " at "
             + currentDate.getHours().toString().padStart(2, '0') + ":"
             + currentDate.getMinutes().toString().padStart(2, '0') + ":"
-            + currentDate.getSeconds().toString().padStart(2, '0')
+            + currentDate.getSeconds().toString().padStart(2, '0');
 
         try {
-            await getDatabase().ref(`/spaces/${code}`).update({
+            const messageCounterRef = getDatabase().ref(`/spaces/${code}/messageCounter`)
+            const messageCounterSnapshot = await messageCounterRef.once('value')
+            let messageCounter = messageCounterSnapshot.val() || 0
+
+            messageCounter += 1
+
+            const newMessageId = `message_${messageCounter}`
+
+            const messageData = {
+                id: messageCounter,
                 message: message.trim(),
+                sentOn: formattedDate,
+                sentBy: nickname,
+            }
+
+            const messagesRef = getDatabase().ref(`/spaces/${code}/messages/${newMessageId}`)
+            await messagesRef.set(messageData)
+
+            await messageCounterRef.set(messageCounter)
+
+            await getDatabase().ref(`/spaces/${code}`).update({
                 lastMessageSentOn: formattedDate,
+                lastMessageSentBy: nickname,
             })
+
             return true
         } catch (error: any) {
             console.error('Error sending message: ', error)
@@ -91,20 +113,68 @@ export default class FirebaseDB {
         })
     }
 
-    static async setJoinLimit(limit: number) {
-        let joinLimit: any
+    static async setJoinLimit(limit: number): Promise<boolean> {
         const code = storage.getString(STRINGS.MMKV.Code)
-        await getDatabase().ref(`/spaces/${code}/joinLimit`).once('value').then(snapshot => {
-            joinLimit = snapshot.val()
-        })
-        await getDatabase().ref(`/spaces/${code}`).update({
-            joinLimit: Number(limit),
-        })
+
+        const currentlyJoinedFn = await this.getCurrentlyJoined(code)
+
+        if (currentlyJoinedFn <= limit) {
+            await getDatabase().ref(`/spaces/${code}`).update({
+                joinLimit: Number(limit),
+            })
+            return true
+        } else {
+            return false
+        }
     }
 
     static async getJoinLimit(code: any) {
         const snapshot = await getDatabase().ref(`/spaces/${code}/joinLimit`).once('value')
-        console.log(snapshot.val())
         return snapshot.val()
     }
+
+    static async getCurrentlyJoined(code: any) {
+        const snapshot = await getDatabase().ref(`/spaces/${code}/currentlyJoined`).once('value')
+        return snapshot.val()
+    }
+
+    static async getLastNickName(code: any) {
+        const snapshot = await getDatabase().ref(`/spaces/${code}/lastMessageSentBy`).once('value')
+        return snapshot.val()
+    }
+
+    static async clearChat(code: any) {
+        const snapshot = await getDatabase().ref(`/spaces/${code}/`).once('value')
+        if (snapshot.exists()) {
+            await getDatabase().ref(`/spaces/${code}/messageCounter`).remove()
+            await getDatabase().ref(`/spaces/${code}/messages`).remove()
+        } else {
+            console.log(`Space with code ${code} does not exist.`)
+        }
+    }
+
+    static async clearChatToggle(code: any) {
+        try {
+            const snapshot = await getDatabase().ref(`/spaces/${code}/clearChatOnLeavingSpace`).once('value')
+            if (snapshot.exists()) {
+                const clearChatBool = snapshot.val()
+                await getDatabase().ref(`/spaces/${code}/`).update({ clearChatOnLeavingSpace: !clearChatBool })
+            }
+        } catch (error) {
+            console.error('Error toggling clearChat:', error);
+        }
+    }
+
+    static async deleteSpace(code: any) {
+        const snapshot = await getDatabase().ref(`/spaces/${code}/`).once('value')
+        if (snapshot.exists()) {
+            const spaceData = snapshot.val()
+            await getDatabase().ref(`/deletedSpaces/${code}`).set(spaceData)
+            await getDatabase().ref(`/spaces/${code}/`).remove()
+        } else {
+            console.log(`Space with code ${code} does not exist.`)
+        }
+    }
+
+
 }
