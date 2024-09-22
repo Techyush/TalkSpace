@@ -1,14 +1,17 @@
-import { Animated, AppState, AppStateStatus, BackHandler, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { COLORS, FONTS, IMAGES, SCREENS, STRINGS } from '../utils/Strings'
-import { sizeFont, sizeWidth } from '../utils/Size'
-import CustomTextInput from '../components/CustomTextInput'
-import FirebaseDB from '../firebase/FirebaseDB'
-import { NickNameGenerator, storage } from '../../App'
+import { AppState, AppStateStatus, BackHandler, FlatList, Image, Pressable, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+
 import { getDatabase } from '@react-native-firebase/database'
-import SetLimitModal from '../components/SetLimitModal'
+
+import { NickNameGenerator, storage } from '../../App'
+import FirebaseDB from '../firebase/FirebaseDB'
+
+import CustomTextInput from '../components/CustomTextInput'
 import Loading from '../components/Loading'
-import { adjectives, animals, colors, uniqueNamesGenerator } from 'unique-names-generator'
+import SetLimitModal from '../components/SetLimitModal'
+
+import { sizeFont, sizeWidth } from '../utils/Size'
+import { COLORS, FONTS, IMAGES, SCREENS, STRINGS } from '../utils/Strings'
 
 interface Props {
     navigation: any,
@@ -285,8 +288,8 @@ const TalkSpace: FC<Props> = ({ navigation }) => {
                         showsVerticalScrollIndicator={false}
                     />
                 ) : (
-                    <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                        <Text style={styles.chatText}>It's so empty here!</Text>
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                        <Text style={styles.emptyChatText}>It's so empty here, Start Chatting!</Text>
                     </View>
                 )}
             </View>
@@ -405,9 +408,7 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         maxWidth: sizeWidth(80),
         alignSelf: 'flex-start',
-        borderStartStartRadius: 20,
-        borderEndEndRadius: 20,
-        borderEndStartRadius: 20,
+        borderRadius: 20,
     },
     messageContainerRight: {
         paddingVertical: 10,
@@ -415,9 +416,7 @@ const styles = StyleSheet.create({
         paddingStart: 20,
         backgroundColor: COLORS.Light_Purple,
         marginVertical: 5,
-        borderStartEndRadius: 20,
-        borderStartStartRadius: 20,
-        borderEndStartRadius: 20,
+        borderRadius: 20,
         maxWidth: sizeWidth(80),
         alignSelf: 'flex-end'
     },
@@ -448,12 +447,14 @@ const styles = StyleSheet.create({
         color: COLORS.Dark_Gray,
         fontFamily: FONTS.Mont_SemiBold,
         fontSize: sizeFont(3),
+        marginStart: sizeWidth(3),
     },
     sentOnTextRight: {
         color: COLORS.Dark_Gray,
         fontFamily: FONTS.Mont_SemiBold,
         fontSize: sizeFont(3),
         textAlign: 'right',
+        marginEnd: sizeWidth(3),
     },
     itemSeparatorComponent: {
         backgroundColor: COLORS.Deep_Purple,
@@ -466,5 +467,11 @@ const styles = StyleSheet.create({
         height: sizeWidth(0.3),
         width: sizeWidth(5),
         borderRadius: 100
-    }
+    },
+    emptyChatText: {
+        fontFamily: FONTS.Mont_SemiBold,
+        color: COLORS.Black,
+        fontSize: sizeFont(4.3),
+        textAlign: 'center',
+    },
 })

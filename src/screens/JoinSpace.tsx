@@ -1,15 +1,17 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { Animated, Image, Keyboard, KeyboardAvoidingView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { Animated, Image, Keyboard, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+
 import { NickNameGenerator, storage } from '../../App'
+import FirebaseDB from '../firebase/FirebaseDB'
+
 import CustomButton from '../components/CustomButton'
 import CustomTextInput from '../components/CustomTextInput'
 import IntroPopupModal from '../components/IntroPopupModal'
 import Loading from '../components/Loading'
-import FirebaseDB from '../firebase/FirebaseDB'
+import SettingPopupModal from '../components/SettingPopupModal'
+
 import { sizeFont, sizeWidth } from '../utils/Size'
 import { COLORS, FONTS, IMAGES, SCREENS, STRINGS } from '../utils/Strings'
-import SettingPopupModal from '../components/SettingPopupModal'
-import { animals, colors, uniqueNamesGenerator } from 'unique-names-generator'
 
 interface Props {
   navigation: any
